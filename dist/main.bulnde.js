@@ -1,1 +1,0 @@
-(()=>{console.log("Hello, World!");var e=document.createElement("h1");e.textContent="Webpack!",document.querySelector("#root").append(e)})();
