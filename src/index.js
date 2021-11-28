@@ -1,9 +1,5 @@
-import './styles/main.scss';
+console.log('No');
 
+import './styles/index.scss';
 
-console.log('Hello, World!!');
-
-const heading = document.createElement('h1');
-heading.textContent = 'Webpack-Starter! Hehe, boy';
-
-document.getElementById('root').append(heading);
+console.log('Yes');

@@ -1,130 +1,104 @@
 const path = require('path');
-const webpack = require('webpack');
-const {
-  CleanWebpackPlugin
-} = require('clean-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const ImageminPlugin = require("imagemin-webpack");
+const CssnanoPlugin = require('cssnano-webpack-plugin');
+
+let mode = 'development';
+
+if (process.env.NODE_ENV === 'production') {
+  mode = 'production';
+}
+
+
+console.log(mode + ' === mode');
 
 module.exports = {
+  mode: mode,
+
   entry: {
-    main: path.resolve(__dirname, './src/index.js'),
+    scripts: './src/index.js',
+
   },
 
-  mode: 'development',
   devServer: {
-    historyApiFallback: true,
-    static: path.resolve(__dirname, './dist'),
-    open: true,
-    compress: true,
-    hot: true,
+    static: {
+      directory: path.join(__dirname, 'src'),
+    },
     port: 8080,
   },
 
+  devtool: (mode === 'production') ? false : 'source-map',
+
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+    minimizer: [
+      new CssnanoPlugin()
+    ]
+  },
+
+  output: {
+    assetModuleFilename: "assets/[hash][ext][query]",
+    clean: true,
+  },
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: '[name].[contenthash].css'
+    }),
+    new HtmlWebpackPlugin({
+      template: './src/index.html',
+    }),
+  ],
   module: {
-    rules: [{
+    rules: [
+      {
+        test:  /\.html$/i,
+        loader: 'html-loader',
+        options: {
+          sources: mode === 'development' ? false : true,
+        },
+      },
+      {
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          (mode === 'development') ? 'style-loader' : MiniCssExtractPlugin.loader,
+          'css-loader',
+          {
+            loader: 'postcss-loader',
+            options: {
+              postcssOptions: {
+                plugins: [
+                  [
+                    'postcss-preset-env'
+                  ]
+                ]
+              }
+            }
+          },
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf|otf)$/i,
+        type: 'asset/resource',
+      },
+      {
         test: /\.m?js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
           loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-env'],
-            plugins: ['@babel/plugin-proposal-object-rest-spread']
+            presets: ['@babel/preset-env']
           }
         }
-      },
-      {
-        test: /\.(?:ico|gif|png|jpe?g|svg)$/i,
-        type: 'asset/resource',
-      },
-      {
-        test: /\.(?:mp3|wav|ogg|mp4)$/i,
-        type: 'asset/resource',
-      },
-      {
-        test: /\.(woff(2)?|eot|ttf|otf|svg|)$/,
-        type: 'asset/inline',
-      },
-      {
-        test: /\.s[ac]ss$/i,
-        use: [{
-          loader: MiniCssExtractPlugin.loader,
-          options: {
-            publicPath: '../'
-          }
-        }, 'css-loader', 'sass-loader']
       }
     ]
   },
 
-  plugins: [
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, './src/template.html'),
-      filename: 'index.html',
-    }),
-    new MiniCssExtractPlugin({
-      filename: 'css/[name].[contenthash].css'
-    }),
-    new webpack.HotModuleReplacementPlugin(),
 
-    new CopyPlugin({
-      patterns: [{
-        from: '**/*',
-        context: path.resolve(__dirname, 'src'),
-        globOptions: {
-          ignore: [
-            '**/*.js',
-            '**/*.ts',
-            '**/*.scss',
-            '**/*.sass',
-            '**/*.html',
-          ],
-        },
-        noErrorOnMissing: true,
-        force: true,
-      }],
-    }),
-
-
-    new ImageminPlugin({
-      bail: false, // Ignore errors on corrupted images
-      cache: true,
-      imageminOptions: {
-        // Before using imagemin plugins make sure you have added them in `package.json` (`devDependencies`) and installed them
-
-        // Lossless optimization with custom option
-        // Feel free to experiment with options for better result for you
-        plugins: [
-          ["gifsicle", {
-            interlaced: true
-          }],
-          ["jpegtran", {
-            progressive: true
-          }],
-          ["optipng", {
-            optimizationLevel: 5
-          }],
-          [
-            "svgo",
-            {
-              plugins: [{
-                removeViewBox: false
-              }]
-            }
-          ]
-        ],
-      }
-    }),
-
-
-
-    new CleanWebpackPlugin(),
-  ],
-
-  output: {
-    path: path.resolve(__dirname, './dist'),
-    filename: 'js/[name].[contenthash].js',
-  }
 };
