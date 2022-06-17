@@ -1,30 +1,16 @@
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const {CleanWebpackPlugin} = require('clean-webpack-plugin');
-const ImageMinimizerPlugin = require('image-minimizer-webpack-plugin');
+const HTMLWebpackPlugin = require('html-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const OptimizeCssAssetWebpackPlugin = require('optimize-css-assets-webpack-plugin');
+const TerserWebpackPlugin = require('terser-webpack-plugin');
+const ImageminPlugin = require('imagemin-webpack');
 
 let conf = {
-  entry: {
-    main: path.resolve(__dirname, './src/index.js'),
-  },
+  entry: {main: path.resolve(__dirname, './src/js/main.js')},
 
   module: {
     rules: [
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env'],
-          },
-        },
-      },
-      {
-        test: /\.css$/,
-        use: [MiniCssExtractPlugin.loader, 'css-loader'],
-      },
       {
         test: /\.s[ac]ss$/i,
         use: [
@@ -61,41 +47,96 @@ let conf = {
       },
       {
         test: /\.(jpe?g|png|gif|svg)$/i,
-        type: 'asset/resource',
-      },
-      {
-        test: /\.(woff(2)?|eot|ttf|otf|)$/,
-        type: 'asset/resource',
         use: [
           {
             loader: 'file-loader',
+            options: {
+              name: `./img/[name].[contenthash].[ext]}`,
+            },
           },
         ],
+      },
+      {
+        test: /\.(woff(2)?|eot|ttf|otf|)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: `./fonts/[name].[contenthash].[ext]}`,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'babel-loader',
+          options: {
+            presets: ['@babel/preset-env'],
+          },
+        },
       },
     ],
   },
 
+  optimization: {
+    minimizer: [new OptimizeCssAssetWebpackPlugin(), new TerserWebpackPlugin()],
+  },
+
+  plugins: [
+    new MiniCssExtractPlugin({
+      filename: './css/[name].[contenthash].css',
+    }),
+
+    new HTMLWebpackPlugin({
+      template: path.resolve(__dirname, 'src/index.html'),
+      filename: 'index.html',
+      minify: true,
+      favicon: 'src/assets/favicon.ico',
+    }),
+
+    new ImageminPlugin({
+      bail: false, // Ignore errors on corrupted images
+      cache: true,
+      imageminOptions: {
+        plugins: [
+          ['gifsicle', {interlaced: true}],
+          ['jpegtran', {progressive: true}],
+          ['optipng', {optimizationLevel: 5}],
+          [
+            'svgo',
+            {
+              plugins: [
+                {
+                  removeViewBox: false,
+                },
+              ],
+            },
+          ],
+        ],
+      },
+    }),
+
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.resolve(__dirname, 'src/assets'),
+          to: path.resolve(__dirname, 'dist/assets'),
+        },
+      ],
+    }),
+  ],
+
   devServer: {
     static: './dist/',
-    watchFiles: ['src/*.html', 'src/sass/*'],
-    port: 8080,
+    watchFiles: ['src/*.html', 'src/scss/*'],
+    port: 3000,
     open: true,
     compress: true,
     hot: true,
     liveReload: true,
   },
-
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: '[name].[contenthash].css',
-    }),
-    new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, './src/index.html'),
-      filename: 'index.html',
-      minify: true,
-    }),
-    new CleanWebpackPlugin(),
-  ],
 
   optimization: {
     splitChunks: {
@@ -104,8 +145,7 @@ let conf = {
   },
 
   output: {
-    assetModuleFilename: 'assets/[hash][ext][query]',
-    filename: '[name].[contenthash].js',
+    filename: `[name].[contenthash].js`,
     path: path.resolve(__dirname, './dist'),
     clean: true,
   },

@@ -3,46 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "webpack.config.js",
-  "dependencies": {
-    "mini-css-extract-plugin": "^2.6.0",
-    "style-loader": "^3.3.1",
-    "webpack-cli": "^4.9.2"
-  },
-  "devDependencies": {
-    "@babel/core": "^7.18.2",
-    "@babel/preset-env": "^7.18.2",
-    "@squoosh/lib": "^0.4.0",
-    "babel-loader": "^8.2.5",
-    "clean-webpack-plugin": "^4.0.0",
-    "css-loader": "^6.7.1",
-    "file-loader": "^6.2.0",
-    "html-loader": "^3.1.0",
-    "html-webpack-plugin": "^5.5.0",
-    "image-minimizer-webpack-plugin": "^3.2.3",
-    "image-webpack-loader": "^8.1.0",
-    "imagemin-gifsicle": "^7.0.0",
-    "imagemin-jpegtran": "^7.0.0",
-    "imagemin-mozjpeg": "^10.0.0",
-    "imagemin-optipng": "^8.0.0",
-    "imagemin-pngquant": "^9.0.2",
-    "imagemin-svgo": "^10.0.1",
-    "postcss": "^8.4.14",
-    "postcss-loader": "^7.0.0",
-    "postcss-preset-env": "^7.7.1",
-    "sass": "^1.52.2",
-    "sass-loader": "^13.0.0",
-    "webpack": "^5.73.0",
-    "webpack-dev-server": "^4.9.1"
-  },
   "scripts": {
-    "build": "webpack --mode production",
-    "dev": "webpack serve --mode development --open"
+    "dev": "webpack serve --mode development",
+    "build": "webpack  --mode production"
   },
-  "browserslist": [
-    "last 2 versions",
-    "> 1%",
-    "IE 10"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/AzizShik/webpack-starter.git"
@@ -52,5 +16,28 @@
   "bugs": {
     "url": "https://github.com/AzizShik/webpack-starter/issues"
   },
-  "homepage": "https://github.com/AzizShik/webpack-starter#readme"
+  "homepage": "https://github.com/AzizShik/webpack-starter#readme",
+  "devDependencies": {
+    "@babel/core": "^7.18.5",
+    "@babel/preset-env": "^7.18.2",
+    "babel-loader": "^8.2.5",
+    "copy-webpack-plugin": "^11.0.0",
+    "css-loader": "^6.7.1",
+    "html-loader": "^3.1.0",
+    "html-webpack-plugin": "^5.5.0",
+    "imagemin-webpack": "^5.1.1",
+    "mini-css-extract-plugin": "^2.6.0",
+    "optimize-css-assets-webpack-plugin": "^6.0.1",
+    "postcss-loader": "^7.0.0",
+    "postcss-preset-env": "^7.7.1",
+    "sass": "^1.52.3",
+    "sass-loader": "^13.0.0",
+    "terser-webpack-plugin": "^5.3.3",
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.9.2"
+  },
+  "dependencies": {
+    "normalize.css": "^8.0.1"
+  }
 }
